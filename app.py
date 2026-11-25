@@ -77,9 +77,15 @@ st.caption(f"Data date: {res['data_date']:%d %b %Y}")
 tab1, tab2 = st.tabs(["Schedule health", "Ask the assistant"])
 with tab1:
     show = s.drop(columns=["key"])
-    st.dataframe(show.style.map(lambda v: "background-color:#fde2e2" if v == "Review" else
-                                ("background-color:#e2f5e6" if v == "Pass" else ""), subset=["Status"]),
-                 hide_index=True, use_container_width=True)
+    def _color(v):
+        if v == "Review":
+            return "background-color:#fde2e2;color:#7a1f1f;font-weight:600"
+        if v == "Pass":
+            return "background-color:#e2f5e6;color:#1d5a2e;font-weight:600"
+        return "color:#555"
+    styled = (show.style.map(_color, subset=["Status"])
+              .format({"% of population": "{:.1f}", "Allowed %": "{:.0f}"}, na_rep="-"))
+    st.dataframe(styled, hide_index=True, use_container_width=True)
     st.download_button("Download Excel report", to_excel(res), "schedule_check_report.xlsx",
                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                        on_click="ignore")
@@ -104,3 +110,4 @@ with tab2:
             a = f"Could not reach the AI provider: {e}"
         st.chat_message("assistant").write(a)
         st.session_state.chat += [{"role": "user", "content": q}, {"role": "assistant", "content": a}]
+     
