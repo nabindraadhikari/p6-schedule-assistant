@@ -31,14 +31,26 @@ def parse(raw: bytes):
     return read_xer_bytes(raw)
 
 
-up = st.file_uploader("P6 export (.xer)", type=["xer"])
-use_demo = st.button("Or try the demo file")
-raw = up.getvalue() if up else None
-if use_demo:
-    path = os.path.join(os.path.dirname(__file__), "sample_data", "demo_bridge.xer")
-    raw = open(path, "rb").read()
-if raw is None:
-    st.stop()
+DEMO_ONLY = os.environ.get("DEMO_ONLY", "").lower() in ("1", "true", "yes")
+try:
+    DEMO_ONLY = DEMO_ONLY or str(st.secrets.get("DEMO_ONLY", "")).lower() in ("1", "true", "yes")
+except Exception:
+    pass
+DEMO_PATH = os.path.join(os.path.dirname(__file__), "sample_data", "demo_bridge.xer")
+
+if DEMO_ONLY:
+    st.warning("Public demo: synthetic data only, file upload is disabled. "
+               "Never put real company schedules into a public website.")
+    raw = open(DEMO_PATH, "rb").read()
+else:
+    up = st.file_uploader("P6 export (.xer)", type=["xer"])
+    if st.button("Or try the demo file"):
+        st.session_state["demo"] = True
+    if up:
+        st.session_state["demo"] = False
+    raw = up.getvalue() if up else (open(DEMO_PATH, "rb").read() if st.session_state.get("demo") else None)
+    if raw is None:
+        st.stop()
 
 header, tables = parse(raw)
 projects = list_projects(tables)
