@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+# Real project schedules are confidential - never commit them. Only the synthetic demo is allowed.
+*.xer
+!sample_data/demo_bridge.xer
+*.xlsx
