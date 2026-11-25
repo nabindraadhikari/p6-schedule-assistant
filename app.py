@@ -80,8 +80,9 @@ with tab1:
     st.dataframe(show.style.map(lambda v: "background-color:#fde2e2" if v == "Review" else
                                 ("background-color:#e2f5e6" if v == "Pass" else ""), subset=["Status"]),
                  hide_index=True, use_container_width=True)
-    st.download_button("Download Excel report", to_excel(res), "schedule_check_report.xlsx",
-                       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        st.download_button("Download Excel report", to_excel(res), "schedule_check_report.xlsx",
+                       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                       on_click="ignore")
     for _, r in s[s["Count"] > 0].iterrows():
         with st.expander(f"{r['Check']}: {r['Count']} ({r['% of population']}%)  [{r['Status']}]"):
             st.write(r["Why it matters"])
